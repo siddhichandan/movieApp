@@ -1,17 +1,17 @@
-{% extends 'movieapp/layout/base.html' %}
+{% extends 'movieApp/layout/base.html' %}
 {% block css %}
-  {% include 'movieapp/layout/assets/css.html' %}
+  {% include 'movieApp/layout/assets/css.html' %}
 {% endblock %}
 {% block header %}
-  {% include 'movieapp/layout/header/main.html' %}
+  {% include 'movieApp/layout/header/main.html' %}
 {% endblock %}
 {% block content %}
  	{% if template_type == 'main' %}
-  		{% include 'movieapp/layout/content/main.html' %}
+  		{% include 'movieApp/layout/content/main.html' %}
   	{% else %}
-  		{% include 'movieapp/layout/content/movie.html' %}
+  		{% include 'movieApp/layout/content/movie.html' %}
   	{% endif %}
 {% endblock %}
 {% block javascript %}
-	{% include 'movieapp/layout/assets/js.html' %}
+	{% include 'movieApp/layout/assets/js.html' %}
 {% endblock %}
