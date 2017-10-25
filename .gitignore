@@ -114,4 +114,4 @@ docs/_build/
 .idea
 
 # Random
-.DS_Store
+*.DS_Store
