@@ -25,8 +25,6 @@ urlpatterns = [
             url(r'^$', MovieDetailView.as_view(), name = 'movieTitleSearch'),
             url(r'^(?P<jsonResponse>json)$', MovieDetailView.as_view(), name="movie_detail")
     ])),
-
-
     url(r'^$', MainView.as_view(), name='home')
 
 ]  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
