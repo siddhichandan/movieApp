@@ -4,18 +4,17 @@
 						<div class="breadcrumbs">
 							<a href="index.html">Home</a>
 							<a href="review.html">Movie Review</a>
-							<span>The Croods</span>
 						</div>
 
 						<div class="content">
 							<div class="row">
+							{% if movie == None%}
+										<h2> Sorry, movie not found </h2>
+							{% else %}
 								<div class="col-md-6">
 									<figure class="movie-poster"><img src="{{ movie.image_url }}" alt="#"></figure>
 								</div>
 								<div class="col-md-6">
-									{% if movie == None%}
-										<h2> Sorry, movie not found </h2>
-									{% else %}
 									<h2 class="movie-title">{{ movie.title }}</h2>
 									<div class="movie-summary">
 										<p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. </p>
@@ -34,7 +33,7 @@
 									<ul class="Directors">
 										<li><strong>Directors: </strong>{{ movie.director }} </li>
 									</ul>
-									{% endif %}
+							{% endif %}
 								</div>
 							</div> <!-- .row -->
 						</div>

@@ -204,11 +204,9 @@ class MovieListView(ListView):
 				return None
 
 			if limit > 0:
-				return  Movie.objects.order_by('created_at')[:limit]
+				return  Movie.get_all_movies_by_created_by("desc",10)
 			else:
-				return Movie.objects.filter(featured_image=True)
-
-			print(self.kwargs.get('featured'))
+				return Movie.get_all_featured_movies(limit=3)
 			
 
 @method_decorator(csrf_exempt, name = 'dispatch')
