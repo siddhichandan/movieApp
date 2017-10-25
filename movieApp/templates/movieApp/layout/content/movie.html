@@ -1,0 +1,43 @@
+ <main class="main-content">
+				<div class="container">
+					<div class="page">
+						<div class="breadcrumbs">
+							<a href="index.html">Home</a>
+							<a href="review.html">Movie Review</a>
+							<span>The Croods</span>
+						</div>
+
+						<div class="content">
+							<div class="row">
+								<div class="col-md-6">
+									<figure class="movie-poster"><img src="{{ movie.image_url }}" alt="#"></figure>
+								</div>
+								<div class="col-md-6">
+									{% if movie == None%}
+										<h2> Sorry, movie not found </h2>
+									{% else %}
+									<h2 class="movie-title">{{ movie.title }}</h2>
+									<div class="movie-summary">
+										<p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. </p>
+
+										<p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit sed.</p>
+									</div>
+									<ul class="movie-meta">
+										<!--li><strong>Rating:</strong> 
+											<div class="star-rating" title="Rated 4.00 out of 5"><span style="width:80%"><strong class="rating">4.00</strong> out of 5</span></div>
+										</li-->
+										<li><strong>Imdb Rating: </strong>{{ movie.imdb_score }} %</li>
+										<li><strong>Category: </strong>{{ genre_string }}</li>
+										 <li><strong>Movie99 Rating: </strong>{{ movie.popularity }} %</li>
+									</ul>
+
+									<ul class="Directors">
+										<li><strong>Directors: </strong>{{ movie.director }} </li>
+									</ul>
+									{% endif %}
+								</div>
+							</div> <!-- .row -->
+						</div>
+					</div>
+				</div> <!-- .container -->
+			</main>

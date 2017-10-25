@@ -1,0 +1,16 @@
+{% extends 'movieapp/layout/base.html' %}
+{% block css %}
+  {% include 'movieapp/layout/assets/css.html' %}
+{% endblock %}
+{% block header %}
+  {% include 'movieapp/layout/header/main.html' %}
+{% endblock %}
+{% block content %}
+
+<div class = 'col-sm-6 col-sm-offset-3'>
+   {% include 'movieapp/layout/content/form_info.html' %}
+</div>
+{% endblock %}
+{% block javascript %}
+	{% include 'movieapp/layout/assets/js.html' %}
+{% endblock %}

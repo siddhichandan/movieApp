@@ -1,0 +1,10 @@
+{% for movie in movie_list %}
+    {% if forloop.first %}<div class="row">{% endif %}
+    <div class="col-sm-6 col-md-3">
+		<div class="latest-movie">
+			<a href="/movie/title/{{ movie.id }}"><img src= "{{ movie.image_url}}" alt="Slide 1"></a>
+		</div>
+	</div>
+    {% if forloop.counter|divisibleby:4 %}</div><div class="row">{% endif %}
+    {% if forloop.last %}</div>{% endif %}
+{% endfor %}

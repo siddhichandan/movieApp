@@ -1,0 +1,22 @@
+<main class="main-content">
+	<div class="container">
+		<div class="page">
+			<div class="row">
+				<div class="col-md-2"></div>
+				<div class="col-md-8">
+					<div class="slider">
+						<ul class="slides" id="featuredList">
+							{% for movie in movie_list %}
+								{{ movie.open_link }}
+									<li><a href="{{ movie.open_link }}"><img src= "{{ movie.image_url}}" alt="Slide 1" style="height: 500px;"></a></li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
+				<div class="col-md-2"></div>
+			</div> <!-- .row -->
+			<div id="latest-movie">
+			</div>
+		</div>
+	</div> <!-- .container -->
+</main>
