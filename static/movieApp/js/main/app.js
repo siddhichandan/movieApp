@@ -1,8 +1,7 @@
+
 (function($, document, window){
 	
 	$(document).ready(function(){
-
-		console.log("Howdy 2");
 
 		// Cloning main navigation for mobile menu
 		$(".mobile-navigation").append($(".main-navigation .menu").clone());
@@ -38,7 +37,6 @@
 			"autofit" );
 	    	
 	    }
-	    //console.log(fetching the movies);
 	    getFeaturedMovies()
 	});
 
@@ -52,17 +50,9 @@ function getFeaturedMovies(){
 	console.log("In get getFeaturedMovies");
 	$.ajax({
     method: "GET",
-    url: "/movies/10",
+    url: "/movies/8",
   })
   .done(function( data ) {
-    console.log(data);
-    /*var jsonobj = $.parseJSON(data);
-    console.log(jsonobj);
-    if(jsonobj["status"] == "success"){
-    	response = jsonobj["response"];
-    	$('#featuredList').append(response["html"]);
-
-    }*/
     $('#latest-movie').html(data);
     
   })
@@ -85,4 +75,58 @@ function openSearchResult(){
 	open_url = $('#search').data('search_url');
 	open_url = open_url.replace('query', search);
 	window.open(open_url);
+}
+
+function openAddmovieModal(url){
+	console.log("In openAddmovieModal")
+	console.log(url)
+	$.ajax({
+    method: "GET",
+    url: url,
+  })
+  .done(function( data ) {
+    $('#modal-data').html(data);
+  })
+  .fail(function(jqXHR){
+    if(jqXHR.status==500 || jqXHR.status==0){
+      var message = 'Oops! Something went wrong.</h3><p>We will work on fixing that right away.Meanwhile, you may try using the other search queries.';
+      console.log(message);
+    }
+  });
+	$("#addMovieModel").modal('toggle');
+	 
+}
+
+function closeMoviemodal(){
+	$("#addMovieModel").modal('toggle');
+}
+
+function submitThisForm(e){
+	e.disabled = true;
+	console.log("submitThisForm")
+
+	var url = $('#submitForm').data('url') // the script where you handle the form input.
+
+    $.ajax({
+           type: "POST",
+           url: url,
+           data: $("#addMovieForm").serialize(), // serializes the form's elements.
+    }).done(function( data ) {
+    	if(typeof data == "string"){
+              data = $.parseJSON(data);
+         }
+        status = data["status"];
+        if(status == "success"){
+        	alert("Operation successfull");
+        } else {
+        	alert(data["response"]["message"]);
+        }
+    	e.disabled=false
+  	}).fail(function(jqXHR){
+    if(jqXHR.status==500 || jqXHR.status==0){
+      var message = 'Oops! Something went wrong.</h3><p>We will work on fixing that right away.Meanwhile, you may try using the other search queries.';
+      console.log(message);
+    }
+  });
+
 }

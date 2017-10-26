@@ -1,19 +1,46 @@
  <main class="main-content">
 	<div class="container">
 		<div class="page">
-			<div class="breadcrumbs">
-				<a href="index.html">Home</a>
-				<span>Movie Review</span>
-			</div>
 			<div class="filters">
-				<select name="#" id="#" placeholder="Choose Category">
-					{% for choice in choices %}
-						<option value="choice.name">chioce.name</option>
+				<select id="genreCategory" placeholder="Choose Category" >
+					{% for key,value in choices.items %}
+						{% if key == genre_selected %}
+							<option value="{{ value }}" selected data-url="{{ review_url }}{{ key }}">{{ key }} </option>
+						{% else %}
+							<option value="{{ value }}" data-url="{{ review_url }}{{ key }}">{{ key }} </option>
+						{% endif %}
 					{% endfor%}
 				</select>
-				<div class="movie-list">
-				</div>
-				
+				{% if perms.movieApp.can_add_movie %}
+					<div class="pull-right">
+					<button class="btn btn-primary" type="button" onclick="openAddmovieModal('{{ edit_get_url }}')"> + </button>
+	                </div>
+                {% endif %}
+			</div>
+			<div class="movie-list">
+				{% if movie_list is None %}
+					<p> No movie found in the category </p>
+				{% endif %}
+				{% for movie in movie_list %}
+  						<div class="movie">
+  							<figure class="movie-poster"><img src="{{ movie.image_url}}" alt="#"></figure>
+  							<div class="movie-title"><a href="/movie/title/{{ movie.id }}">{{ movie.title }}</a></div>
+   							<p>{{ movie.movie_description}}</p>
+  						</div>
+				{% endfor %}
+			</div>
+			<div class="pagination pull-left" style="display: block;">
+    			<ul class="pagination">
+    				{% if movie_list.has_previous %}
+            			<li><a href="?page={{ movie_list.previous_page_number }}">previous</a></li>
+        			{% endif %}
+
+        			<li class="disabled"><a href="#"> {{ movie_list.number }} </a></li>
+        			{% if movie_list.has_next %}
+            			<a href="?page={{ movie_list.next_page_number }}">next</a>
+        			{% endif %}
+
+    			</ul>
 			</div>
 		</div>
 	</div>

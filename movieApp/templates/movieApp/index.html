@@ -9,9 +9,22 @@
  	{% if template_type == 'main' %}
   		{% include 'movieApp/layout/content/main.html' %}
   	{% else %}
-  		{% include 'movieApp/layout/content/movie.html' %}
+  		{% if template_type == 'reviewList' %}
+			{% include 'movieApp/layout/content/review.html' %}
+		{% else %}
+  			{% include 'movieApp/layout/content/movie.html' %}
+  		{% endif %}
   	{% endif %}
 {% endblock %}
 {% block javascript %}
 	{% include 'movieApp/layout/assets/js.html' %}
+	 <script type="text/javascript">
+		$('#genreCategory').change(function(){
+			url = $('#genreCategory').find(":selected").data("url");
+			window.open(url,'_top');
+		})	
+	</script>
+{% endblock %}
+{% block popups %}
+	{% include 'movieApp/layout/popups/add_movie.html' %}
 {% endblock %}

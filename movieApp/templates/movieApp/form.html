@@ -6,9 +6,16 @@
   {% include 'movieApp/layout/header/main.html' %}
 {% endblock %}
 {% block content %}
-
 <div class = 'col-sm-6 col-sm-offset-3'>
-   {% include 'movieApp/layout/content/form_info.html' %}
+	<main class="main-content">
+	<div class="container">
+		<div class="page">
+			<div class="row">
+   				{% include 'movieApp/layout/content/form_info.html' %}
+   			</div>
+		</div>
+	</div>
+	</main>
 </div>
 {% endblock %}
 {% block javascript %}

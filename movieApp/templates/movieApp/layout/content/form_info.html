@@ -1,24 +1,28 @@
- 
-{% load crispy_forms_tags %}
- <main class="main-content">
+ {% load crispy_forms_tags %}
+ <!--main class="main-content">
 	<div class="container">
 		<div class="page">
-			<div class="row">
+			<div class="row"-->
 				<div class="col-md-6">
 					<h1>{{ title }}</h1>
 					<hr>
-					<form action="" method="post">
+					<form action="" method="post" id="{{ form_name }}">
 					    <table>
 					        {{ form | crispy }}
 					    </table>
 					    {% csrf_token %}
-					    <input type="submit" class = 'btn btn-default' value="{{ title }}">
+
+					    {% if submit_type == "button" %}
+					    <input type="button" id = "submitForm" class = 'btn btn-default' value="{{ title }}" onclick="this.disabled=true;submitThisForm(this);" data-url="{{ submit_url }}">
+					    {% else %}
+					    	<input type="submit" id = "submitForm" class = 'btn btn-default' value="{{ title }}">
+					    {% endif %}
 					    {% if title == 'Login' %}
 					    	<a class = 'btn btn-default' href="{{ REGISTRATION_URL }}" style="border: none;background: #ffaa3c;padding: 10px;border-radius: 3px;color: #92601e;box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);-webkit-transition: .3s ease;transition: .3s ease;margin-left:10px;">Register Now</a>
 					    {% endif %}
 					</form>
 				</div>
-			</div>
+			<!--/div>
 		</div>
 	</div>
-</main>
+</main-->

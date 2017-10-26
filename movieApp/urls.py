@@ -1,16 +1,23 @@
 from django.conf.urls import include,url
-from movieApp.views import (MoviesView,GenreView,MovieListView,MainView,MovieDetailView,loginView,logoutView,registerView)
+from movieApp.views import (
+    MoviesView,GenreView,MovieListView,MainView,MovieDetailView,
+    ReviewView,loginView,logoutView,registerView,EditMoviesView)
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    url(r'^add/movie/$', MoviesView.as_view()),
-    url(r'^add/genre/$',GenreView.as_view()),
-    #url(r'^movies/$',MovieListView.as_view(), name = 'movieList'),
+    url(r'^add/movie/$', MoviesView.as_view(),name = "addMovie"),
+    url(r'^add/genre/$',GenreView.as_view(), name = "addGenre"),
+    url(r'^edit/movie/(?P<movieId>\d+)/$',EditMoviesView.as_view(), name = "editMovie"),
+    url(r'^reviews/',
+            include([
+                url(r'^$', ReviewView.as_view(),name="reviewPage"),
+                url(r'^(?P<genre>[A-Z]+)/$', ReviewView.as_view(),name="reviewFilterPage" )
+        ])),
     url(r'^movies/',
         include([
             url(r'^(?P<limit>\d+)$', MovieListView.as_view(), name = 'movieList'),
-            url(r'^(?P<featured>featured)$',MovieListView.as_view(), name = 'featuredList')
+            url(r'^genre/(?P<genre>[A-Z]+)$',MovieListView.as_view(), name = 'genreList')
         ])),
     url(r'^login/$',loginView, name = 'login'),
     url(r'^logout/$', logoutView, name = 'logout'),

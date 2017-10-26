@@ -80,7 +80,9 @@ class Utils:
             'LOGIN_URL': reverse("login"),
             'LOGOUT_URL': reverse("logout"),
             'REGISTRATION_URL': reverse("register"),
-            'SEARCH_URL': reverse("movieTitleSearch", args=("query",))
+            'SEARCH_URL': reverse("movieTitleSearch", args=("query",)),
+            'HOME_URL': reverse("home"),
+            'REVIEW_URL':reverse("reviewPage")
         }
         return result
 
