@@ -63,11 +63,13 @@ class movieForm(forms.Form):
 	geners = forms.MultipleChoiceField(choices = CHOICES, widget=forms.CheckboxSelectMultiple())
 	popularity = forms.FloatField(max_value=99,min_value=0)
 	image_url = forms.URLField(label='Movie Image', required=False)
-	movie_description = forms.CharField(widget=forms.Textarea)
+	movie_description = forms.CharField(widget=forms.Textarea, required=False)
 	
 
 class genreForm(forms.ModelForm):
 
+	name = forms.CharField(required=True)
+	description = forms.CharField(required=False)
 	class Meta:
 		model = Genre
 		fields = ['name','description']

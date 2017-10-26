@@ -284,7 +284,7 @@ class EditMoviesView(LoginRequiredMixin, PermissionRequiredMixin, View):
 			
 			movie.save()
 			response = {
-				'message': 'Movie Successfully Added to the database',
+				'message': 'Movie Update Successfull',
 				'movieId':movie.id
 			}
 			response = Utils.create_success_payload(response)
@@ -371,7 +371,7 @@ class GenreView(LoginRequiredMixin, PermissionRequiredMixin, View):
 @method_decorator(csrf_exempt, name ='dispatch')
 class MovieListView(ListView):
 		#model = Movie
-		#paginate_by = 10
+		#paginate_by = 5
 		context_object_name = 'movie_list'
 		template_name = os.path.join(
 		os.path.dirname(__file__),
