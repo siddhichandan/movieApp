@@ -37,7 +37,7 @@
 
         			<li class="disabled"><a href="#"> {{ movie_list.number }} </a></li>
         			{% if movie_list.has_next %}
-            			<a href="?page={{ movie_list.next_page_number }}">next</a>
+            			<li><a href="?page={{ movie_list.next_page_number }}">next</a></li>
         			{% endif %}
 
     			</ul>
