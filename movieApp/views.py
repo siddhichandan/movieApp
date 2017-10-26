@@ -84,7 +84,7 @@ class MainView(View):
 
 	def get(self,request):
 		
-		dataset = Movie.objects.all()
+		dataset = Movie.get_all_movies_created_by("desc",4)
 		movies = []
 		for movie in dataset:
 			new_movie = {}
@@ -122,9 +122,7 @@ class ReviewView(View):
 
 		movies = Movie.get_movies_by_genre(genre)
 		genres = Genre.objects.all()
-		print(genres)
-		for g in genres:
-			print(g.name)
+
 		page = request.GET.get('page', 1)
 		paginator = Paginator(movies, 4)
 		try:
@@ -233,6 +231,9 @@ class EditMoviesView(LoginRequiredMixin, PermissionRequiredMixin, View):
 			genre_list = []
 			for genre in movie.genres.all():
 				genre_list.append(genre.name)
+
+			print("In editMoviesView")
+			print(genre_list)
 			data = {
 				'title':movie.title,
 				'movie_description': movie.movie_description,
@@ -282,9 +283,9 @@ class EditMoviesView(LoginRequiredMixin, PermissionRequiredMixin, View):
 			movie.movie_description = cd.get('movie_description')
 			movie.save()
 
+			movie.genres.clear()
 			for gen in cd['geners']:
 				g = Genre.objects.get(name=gen)
-				print(g)
 				movie.genres.add(g)
 			
 			movie.save()
@@ -296,10 +297,36 @@ class EditMoviesView(LoginRequiredMixin, PermissionRequiredMixin, View):
 		except Exception as e :
 			response = Utils.create_error_payload()
 
-		print(response)
 
 		return HttpResponse(json.dumps(response))
 
+@method_decorator(csrf_exempt, name='dispatch')
+class DeleteMovieView(LoginRequiredMixin, PermissionRequiredMixin, View):
+	login_url = '/login/'
+	permission_required = "delete_movie"
+
+	def post(self, request, movieId):
+		try:
+			movieId = int(movieId)
+		except Exception:
+			movieId = None
+
+		if not movieId:
+			return HttpResponse(json.dumps(Utils.create_error_payload(message="Invalid movieId")))
+		
+		try:
+			movie = Movie.get_movie_by_id(movieId)
+			if not movie:
+				return HttpResponse(json.dumps(Utils.create_error_payload(message="movieId does not exist")))
+			movie.delete()
+			response = {
+				'message': 'Movie Deleted successfully'
+			}
+			response = Utils.create_success_payload(response)
+		except Exception:
+			response = Utils.create_error_payload("Something went wrong")
+
+		return HttpResponse(json.dumps(response))
 
 @method_decorator(csrf_exempt, name='dispatch')
 class GenreView(View):
@@ -325,7 +352,7 @@ class GenreView(View):
 			return HttpResponse(Utils.create_error_payload("Form not correct", form.errors))
 
 		cd = form.cleaned_data
-		title = cd.get('name')
+		title = cd.get('title')
 		description = cd.get('description')
 		response = {}
 		try:
@@ -366,7 +393,7 @@ class MovieListView(ListView):
 				return None
 
 			if limit > 0:
-				return  Movie.get_all_movies_by_created_by("desc",limit)
+				return  Movie.get_all_movies_by_popularity("desc",limit)
 			else:
 				return Movie.get_movies_by_genre(genre=genre)
 
@@ -434,8 +461,10 @@ class MovieDetailView(View):
 				'template_type': 'movieView',
 				'movie': movie,
 				'genre_string': genre_string if movie else "",
-				'edit_get_url': '/edit/movie/' + str(movie.id) + "/"
+				'edit_get_url': '/edit/movie/' + str(movie.id) + "/" if movie else "",
+				'delete_url': '/delete/movie/' + str(movie.id) + "/" if movie else ""
 			}
+
 		print("template_value")
 
 		template_values = Utils.template_vals_with_web_costants(

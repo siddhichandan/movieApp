@@ -23,11 +23,16 @@ class Movie(models.Model):
 		return Movie.objects.all()
 
 	@classmethod
-	def get_all_movies_by_created_by(self, order="asec",limit=10):
+	def get_all_movies_by_popularity(self, order="asec",limit=10):
 		if order=="desc":
 			return Movie.objects.order_by('-popularity','-created_at')[:limit]
-		return Movie.objects.order_by('-created_at')[:limit]
+		return Movie.objects.order_by('popularity','created_at')[:limit]
 
+	@classmethod
+	def get_all_movies_created_by(self, order="asec",limit=10):
+		if order=="desc":
+			return Movie.objects.order_by('-created_at')[:limit]
+		return Movie.objects.order_by('created_at')[:limit]
 
 	@classmethod
 	def get_all_featured_movies(self, limit=None):

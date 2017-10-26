@@ -78,8 +78,7 @@ function openSearchResult(){
 }
 
 function openAddmovieModal(url){
-	console.log("In openAddmovieModal")
-	console.log(url)
+
 	$.ajax({
     method: "GET",
     url: url,
@@ -129,4 +128,23 @@ function submitThisForm(e){
     }
   });
 
+}
+
+function deleteMovie(url){
+	$.ajax({
+    method: "POST",
+    url: url,
+  })
+  .done(function( data ) {
+    //$('#modal-data').html(data);
+    console.log(data);
+    window.location.replace("/")
+    window.location.href = "/"
+  })
+  .fail(function(jqXHR){
+    if(jqXHR.status==500 || jqXHR.status==0){
+      var message = 'Oops! Something went wrong.</h3><p>We will work on fixing that right away.Meanwhile, you may try using the other search queries.';
+      console.log(message);
+    }
+  });
 }

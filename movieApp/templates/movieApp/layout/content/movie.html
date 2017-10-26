@@ -4,10 +4,15 @@
 						<div class="breadcrumbs">
 							<a href="index.html">Home</a>
 							<a href="review.html">Movie Review</a>
-							{% if perms.movieApp.can_add_movie %}
-								<div class="pull-right"><button class="btn btn-primary" type="button" onclick="openAddmovieModal('{{ edit_get_url }}')"  > <i class="fa fa-pencil-square-o" aria-hidden="true"></i> </button> </div>
+							<div class="pull-right">
+							{% if perms.movieApp.can_add_movie and movie%}
+								<button class="btn btn-primary" type="button" onclick="openAddmovieModal('{{ edit_get_url }}')"  > <i class="fa fa-pencil-square-o" aria-hidden="true"></i> </button> 
 
 							{% endif %}
+							{% if perms.movieApp.can_delete_movie and movie %}
+								<button class="btn btn-primary" type="button" onclick="deleteMovie('{{ delete_url }}')"  > <i class="fa fa-trash-o" aria-hidden="true"></i></i> </button>
+							{% endif %}
+							</div>
 						</div>
 
 						<div class="content">

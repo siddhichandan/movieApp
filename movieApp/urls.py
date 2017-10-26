@@ -1,7 +1,7 @@
 from django.conf.urls import include,url
 from movieApp.views import (
     MoviesView,GenreView,MovieListView,MainView,MovieDetailView,
-    ReviewView,loginView,logoutView,registerView,EditMoviesView)
+    ReviewView,loginView,logoutView,registerView,EditMoviesView,DeleteMovieView)
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^add/movie/$', MoviesView.as_view(),name = "addMovie"),
     url(r'^add/genre/$',GenreView.as_view(), name = "addGenre"),
     url(r'^edit/movie/(?P<movieId>\d+)/$',EditMoviesView.as_view(), name = "editMovie"),
+    url(r'^delete/movie/(?P<movieId>\d+)/$',DeleteMovieView.as_view(), name = "removeMovie"),
     url(r'^reviews/',
             include([
                 url(r'^$', ReviewView.as_view(),name="reviewPage"),
