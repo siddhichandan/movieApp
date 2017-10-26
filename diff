@@ -1,0 +1,221 @@
+diff --git a/movieApp/forms.py b/movieApp/forms.py
+index 4607652..7637148 100644
+--- a/movieApp/forms.py
++++ b/movieApp/forms.py
+@@ -1,5 +1,5 @@
+ from django import forms
+-from movieApp.models import Movie,Genre
++from movieApp.models import Movie,Genre,UserReview
+ from django.contrib.auth import authenticate,login,logout,get_user_model
+ 
+ User = get_user_model()
+@@ -72,10 +72,10 @@ class genreForm(forms.ModelForm):
+ 		model = Genre
+ 		fields = ['name','description']
+ 
+-class movieForm2(forms.ModelForm):
+-
+-	class Meta:
+-		model = Movie
+-		fields = ['title','director','imdb_score','genres','popularity']
++class userReviewForm(forms.Form):
+ 
++	userReview = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 40}),label="Add your review")
+ 
++	class Meta:
++		model = UserReview
++		fields = ['userReview']
+\ No newline at end of file
+diff --git a/movieApp/models.py b/movieApp/models.py
+index 5f41a4a..f2902e1 100644
+--- a/movieApp/models.py
++++ b/movieApp/models.py
+@@ -1,4 +1,5 @@
+ from django.db import models
++from django.contrib.auth.models import User
+ 
+ # Create your models here.
+ 
+@@ -66,7 +67,7 @@ class Movie(models.Model):
+ 		print(Movie.objects.get(pk = id))
+ 		return Movie.objects.get(pk = id)
+ 
+-
+-
+-
+-
++class UserReview(models.Model):
++	user = models.ForeignKey(User)
++	movie = models.ForeignKey(Movie)
++	userReview = models.TextField()
+diff --git a/movieApp/templates/movieApp/layout/content/movie.html b/movieApp/templates/movieApp/layout/content/movie.html
+index 631048a..b8c87ed 100644
+--- a/movieApp/templates/movieApp/layout/content/movie.html
++++ b/movieApp/templates/movieApp/layout/content/movie.html
+@@ -1,3 +1,4 @@
++ {% load crispy_forms_tags %}
+  <main class="main-content">
+ 				<div class="container">
+ 					<div class="page">
+@@ -6,11 +7,11 @@
+ 							<!--a href="{{ REVIEW_URL }}">Movie Review</a>
+ 							<a href="javascript:void(0)">{{ movie.title }} </a-->
+ 							<div class="pull-right">
+-							{% if perms.movieApp.can_add_movie and movie%}
++							{% if perms.movieApp.change_movie and movie%}
+ 								<button class="btn btn-primary" type="button" onclick="openAddmovieModal('{{ edit_get_url }}')"  > <i class="fa fa-pencil-square-o" aria-hidden="true"></i> </button> 
+ 
+ 							{% endif %}
+-							{% if perms.movieApp.can_delete_movie and movie %}
++							{% if perms.movieApp.delete_movie and movie %}
+ 								<button class="btn btn-primary" type="button" onclick="deleteMovie('{{ delete_url }}')"  > <i class="fa fa-trash-o" aria-hidden="true"></i></i> </button>
+ 							{% endif %}
+ 							</div>
+@@ -44,6 +45,17 @@
+ 							{% endif %}
+ 								</div>
+ 							</div> <!-- .row -->
++
++							{% if user.is_authenticated %}
++								<div class="row">
++									<form action="" method="post" id="{{ form_name }}">
++						    		<table>
++						        		{{ form | crispy }}
++						    		</table>
++						    		{% csrf_token %}
++						    		<input type="button" id = "submitForm" class = 'btn btn-success' value="Go" onclick="this.disabled=true;submitThisForm(this);" data-url="{{ submit_url }}"/></form>
++								</div>
++							{% endif %}
+ 						</div>
+ 					</div>
+ 				</div> <!-- .container -->
+diff --git a/movieApp/templates/movieApp/layout/content/review.html b/movieApp/templates/movieApp/layout/content/review.html
+index 8484f73..cacaf2e 100644
+--- a/movieApp/templates/movieApp/layout/content/review.html
++++ b/movieApp/templates/movieApp/layout/content/review.html
+@@ -11,7 +11,8 @@
+ 						{% endif %}
+ 					{% endfor%}
+ 				</select>
+-				{% if perms.movieApp.can_add_movie %}
++
++				{% if perms.movieApp.add_movie %}
+ 					<div class="pull-right">
+ 					<button class="btn btn-primary" type="button" onclick="openAddmovieModal('{{ edit_get_url }}')"> + </button>
+ 	                </div>
+diff --git a/movieApp/urls.py b/movieApp/urls.py
+index 1d399ec..6fd35f6 100644
+--- a/movieApp/urls.py
++++ b/movieApp/urls.py
+@@ -1,7 +1,8 @@
+ from django.conf.urls import include,url
+ from movieApp.views import (
+     MoviesView,GenreView,MovieListView,MainView,MovieDetailView,
+-    ReviewView,loginView,logoutView,registerView,EditMoviesView,DeleteMovieView)
++    ReviewView,loginView,logoutView,registerView,EditMoviesView,DeleteMovieView,
++    PostCommentView)
+ from django.conf import settings
+ from django.conf.urls.static import static
+ 
+@@ -33,6 +34,7 @@ urlpatterns = [
+             url(r'^$', MovieDetailView.as_view(), name = 'movieTitleSearch'),
+             url(r'^(?P<jsonResponse>json)$', MovieDetailView.as_view(), name="movie_detail")
+     ])),
++    url(r'^post/comment/(?P<movieId>\d+)/', PostCommentView.as_view, name="postComment"),
+     url(r'^$', MainView.as_view(), name='home')
+ 
+ ]  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+\ No newline at end of file
+diff --git a/movieApp/views.py b/movieApp/views.py
+index c6b7aab..f6bfddb 100644
+--- a/movieApp/views.py
++++ b/movieApp/views.py
+@@ -12,9 +12,8 @@ from django.contrib.auth.models import Group
+ from django.contrib.auth.mixins import LoginRequiredMixin,PermissionRequiredMixin
+ from django.urls import reverse
+ from django.core.paginator import Paginator
+-from movieApp.models import Movie
+-from movieApp.models import Genre
+-from movieApp.forms import movieForm,genreForm,UserLoginForm,UserRegistraterForm
++from movieApp.models import Movie,Genre,UserReview
++from movieApp.forms import movieForm,genreForm,UserLoginForm,UserRegistraterForm,userReviewForm
+ from movieApp.Utility.utils import Utils
+ 
+ 
+@@ -30,6 +29,7 @@ def loginView(request):
+ 		password = form.cleaned_data.get("password")
+ 		user = authenticate(username=username, password=password)
+ 		login(request, user)
++		print(user.get_all_permissions())
+ 		if next:
+ 			return redirect(next)
+ 		return redirect("/")
+@@ -62,6 +62,7 @@ def registerView(request):
+ 		login(request,user)
+ 		g = Group.objects.get(name='User') 
+ 		g.user_set.add(user)
++		print(g.permissions)
+ 
+ 		if next:
+ 			return redirect(next)
+@@ -329,7 +330,10 @@ class DeleteMovieView(LoginRequiredMixin, PermissionRequiredMixin, View):
+ 		return HttpResponse(json.dumps(response))
+ 
+ @method_decorator(csrf_exempt, name='dispatch')
+-class GenreView(View):
++class GenreView(LoginRequiredMixin, PermissionRequiredMixin, View):
++
++	login_url = '/login/'
++	permission_required = "add_genre"
+ 
+ 	def get(self, request):
+ 		form = genreForm()
+@@ -428,6 +432,8 @@ class MovieDetailView(View):
+ 		if not movieName and not movieId:
+ 			movie = None
+ 
++		form = userReviewForm()
++
+ 		if movieName or movieId:
+ 			try:
+ 				if movieId:
+@@ -462,11 +468,11 @@ class MovieDetailView(View):
+ 				'movie': movie,
+ 				'genre_string': genre_string if movie else "",
+ 				'edit_get_url': '/edit/movie/' + str(movie.id) + "/" if movie else "",
+-				'delete_url': '/delete/movie/' + str(movie.id) + "/" if movie else ""
++				'delete_url': '/delete/movie/' + str(movie.id) + "/" if movie else "",
++				'submit_url':'/post/comment/' + str(movie.id) + "/" if movie else "",
++				'form':form
+ 			}
+ 
+-		print("template_value")
+-
+ 		template_values = Utils.template_vals_with_web_costants(
+ 			template_values,
+ 			'Movie99'
+@@ -477,3 +483,23 @@ class MovieDetailView(View):
+ 		)
+ 
+ 		return render(request, path, template_values)
++
++@method_decorator(csrf_exempt, name='dispatch')
++class PostCommentView(LoginRequiredMixin, View):
++
++	login_url = '/login/'
++
++	def post(self, request, movieId):
++
++		try:
++			movieId = int(movieId)
++		except Exception:
++			movieId = None
++
++		if not movieId:
++			return HttpResponse(json.dumps(Utils.create_error_payload(message="Invalid movieId")))
++
++		user = request.user
++		print(type(user))
++
++		userReview = UserReview()
+\ No newline at end of file

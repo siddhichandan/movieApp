@@ -11,7 +11,7 @@
 						{% endif %}
 					{% endfor%}
 				</select>
-				{% if perms.movieApp.can_add_movie %}
+				{% if perms.movieApp.add_movie %}
 					<div class="pull-right">
 					<button class="btn btn-primary" type="button" onclick="openAddmovieModal('{{ edit_get_url }}')"> + </button>
 	                </div>
