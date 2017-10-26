@@ -37,7 +37,7 @@
 			"autofit" );
 	    	
 	    }
-	    getFeaturedMovies()
+	    getFeaturedMovies();
 	});
 
 	$(window).load(function(){
@@ -125,9 +125,34 @@ function submitThisForm(e){
     if(jqXHR.status==500 || jqXHR.status==0){
       var message = 'Oops! Something went wrong.</h3><p>We will work on fixing that right away.Meanwhile, you may try using the other search queries.';
       console.log(message);
+      e.disabled=false
     }
   });
 
+    closeMoviemodal();
+
+}
+
+function submitCommentForm(e){
+    e.disabled = true;
+    console.log("add comment");
+
+    var url = $('#submitForm').data('url')
+    $.ajax({
+           type: "POST",
+           url: url,
+           data: $("#addCommentForm").serialize(), // serializes the form's elements.
+    }).done(function( data ) {
+      e.disabled=false
+      $('[name="userReview"]').val('')
+      //window.location.reload()
+    }).fail(function(jqXHR){
+      e.disabled=false
+    if(jqXHR.status==500 || jqXHR.status==0){
+      var message = 'Oops! Something went wrong.</h3><p>We will work on fixing that right away.Meanwhile, you may try using the other search queries.';
+      console.log(message);
+    }
+  });
 }
 
 function deleteMovie(url){

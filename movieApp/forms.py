@@ -1,5 +1,5 @@
 from django import forms
-from movieApp.models import Movie,Genre
+from movieApp.models import Movie,Genre,UserReview
 from django.contrib.auth import authenticate,login,logout,get_user_model
 
 User = get_user_model()
@@ -74,10 +74,10 @@ class genreForm(forms.ModelForm):
 		model = Genre
 		fields = ['name','description']
 
-class movieForm2(forms.ModelForm):
-
+class userReviewForm(forms.Form):
+ 
+	userReview = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 40,'placeholder': "Review this movie"}),label="")
+ 
 	class Meta:
-		model = Movie
-		fields = ['title','director','imdb_score','genres','popularity']
-
-
+		model = UserReview
+		fields = ['userReview']

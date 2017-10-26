@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -66,7 +67,23 @@ class Movie(models.Model):
 		print(Movie.objects.get(pk = id))
 		return Movie.objects.get(pk = id)
 
+class UserReview(models.Model):
+	user = models.ForeignKey(User)
+	movie = models.ForeignKey(Movie)
+	userReview = models.TextField()
 
+	@classmethod
+	def get_reviews_by_movie_id(self, movie):
+		if not movie:
+			return None
 
+		reviews = movie.userreview_set.all()
 
+		review_list = []
+		for review in reviews:
+			r = {}
+			r['name'] = review.user.username
+			r['post'] = review.userReview
+			review_list.append(r)
 
+		return review_list 

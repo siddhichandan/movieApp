@@ -10,6 +10,8 @@ class Utils:
         responseObject = None
     ):
         print("In creare_error")
+        print(message)
+        print(responseObject)
         payload = {}
         payload = {
             'status': Constants.API_FAIL,
@@ -19,6 +21,7 @@ class Utils:
         }
         if responseObject:
             payload['response'].update(responseObject)
+        print(payload)
         return payload
 
     @classmethod

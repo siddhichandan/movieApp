@@ -1,7 +1,7 @@
 from django.conf.urls import include,url
 from movieApp.views import (
     MoviesView,GenreView,MovieListView,MainView,MovieDetailView,
-    ReviewView,loginView,logoutView,registerView,EditMoviesView,DeleteMovieView)
+    ReviewView,loginView,logoutView,registerView,EditMoviesView,DeleteMovieView,PostCommentView)
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -33,6 +33,7 @@ urlpatterns = [
             url(r'^$', MovieDetailView.as_view(), name = 'movieTitleSearch'),
             url(r'^(?P<jsonResponse>json)$', MovieDetailView.as_view(), name="movie_detail")
     ])),
+    url(r'^post/comment/(?P<movieId>\d+)/', PostCommentView.as_view(), name="postComment"),
     url(r'^$', MainView.as_view(), name='home')
 
 ]  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

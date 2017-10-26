@@ -4,18 +4,18 @@ from django.views.decorators.http import require_http_methods
 from django.views import View
 from django.views.generic import ListView
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from django.template.loader import render_to_string
 from django.template.loader import render_to_string
 from django.contrib.auth import authenticate,login,logout
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group,User
 from django.contrib.auth.mixins import LoginRequiredMixin,PermissionRequiredMixin
 from django.urls import reverse
 from django.core.paginator import Paginator
-from movieApp.models import Movie
-from movieApp.models import Genre
-from movieApp.forms import movieForm,genreForm,UserLoginForm,UserRegistraterForm
+from movieApp.models import Movie,Genre,UserReview
+from movieApp.forms import movieForm,genreForm,UserLoginForm,UserRegistraterForm,userReviewForm
 from movieApp.Utility.utils import Utils
+
 
 
 import json
@@ -408,6 +408,7 @@ class MovieListView(ListView):
 			
 
 @method_decorator(csrf_exempt, name = 'dispatch')
+#csrf_protect
 class MovieDetailView(View):
 	
 	def get(self, request, movieId=None, movieName=None, jsonResponse=None):
@@ -424,21 +425,27 @@ class MovieDetailView(View):
 		if not movieName and not movieId:
 			movie = None
 
+		print("what just happened")
+
+		form = userReviewForm()
+		review_list = []
 		if movieName or movieId:
-			try:
-				if movieId:
-					#movie = Movie.get_movie_by_id(movieId)
-					movie = Movie.objects.get(pk = movieId)
-				else:
-					movie = Movie.objects.get(title__icontains = movieName) 
+			#try:
+			if movieId:
+				#movie = Movie.get_movie_by_id(movieId)
+				movie = Movie.objects.get(pk = movieId)
+			else:
+				movie = Movie.objects.get(title__icontains = movieName) 
 
-				genre_list = []
-				for genre in movie.genres.all():
-					genre_list.append(genre.name)
+			genre_list = []
+			for genre in movie.genres.all():
+				genre_list.append(genre.name)
 
-				genre_string = "/".join(genre_list) if genre_list else ""
-			except Exception:
-				movie = None
+			review_list = UserReview.get_reviews_by_movie_id(movie)
+
+			genre_string = "/".join(genre_list) if genre_list else ""
+			#except Exception:
+			#	movie = None
 
 		if jsonResponse=='json':
 			if not movie:
@@ -458,7 +465,10 @@ class MovieDetailView(View):
 				'movie': movie,
 				'genre_string': genre_string if movie else "",
 				'edit_get_url': '/edit/movie/' + str(movie.id) + "/" if movie else "",
-				'delete_url': '/delete/movie/' + str(movie.id) + "/" if movie else ""
+				'delete_url': '/delete/movie/' + str(movie.id) + "/" if movie else "",
+				'submit_url':'/post/comment/' + str(movie.id) + "/" if movie else "",
+				'form':form,
+				'review_list': review_list
 			}
 
 
@@ -472,3 +482,51 @@ class MovieDetailView(View):
 		)
 
 		return render(request, path, template_values)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class PostCommentView(LoginRequiredMixin, View):
+
+	login_url = '/login/'
+
+	def post(self, request, movieId):
+
+		form = userReviewForm(request.POST)
+
+		if not form.is_valid():
+			return HttpResponse(Utils.create_error_payload("Form not correct", form.errors))
+
+		print("form is valid")
+		try:
+			movieId = int(movieId)
+		except Exception:
+			movieId = None
+
+		if not movieId:
+			return HttpResponse(json.dumps(Utils.create_error_payload(message="Invalid movieId")))
+
+		movie = Movie.get_movie_by_id(movieId)
+
+		if not movie:
+			return HttpResponse(json.dumps(Utils.create_error_payload(message="Movie Doesnt exists!!!")))
+
+		user = User.objects.get(username=request.user.get_username())
+		
+		if not user:
+			return HttpResponse(json.dumps(Utils.create_error_payload(message="Invalid User")))
+
+		userReview = UserReview()
+		try:
+
+			userReview.user = user
+			userReview.movie = movie
+			userReview.userReview = form.cleaned_data.get('userReview')
+			userReview.save()
+		except Exception:
+			return HttpResponse(json.dumps(Utils.create_error_payload(message="Error while saving")))
+		
+
+		response = {
+				'message': 'Comment Added '
+			}
+		response = Utils.create_success_payload(response)
+		return HttpResponse(json.dumps(response))

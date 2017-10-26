@@ -1,0 +1,11 @@
+{% load crispy_forms_tags %}
+<div class="row">
+	<form action="" method="post" id="addCommentForm">
+	{% csrf_token %}
+	<table>
+		{{ form | crispy }}
+	</table>
+	
+	<input type="button" id = "submitForm" class = 'btn btn-success' value="Go" onclick="this.disabled=true;submitCommentForm(this);" data-url="{{ submit_url }}"/>
+	</form>
+</div>

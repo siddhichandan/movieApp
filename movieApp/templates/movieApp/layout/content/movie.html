@@ -1,4 +1,4 @@
- <main class="main-content">
+<main class="main-content">
 				<div class="container">
 					<div class="page">
 						<div class="breadcrumbs">
@@ -44,6 +44,38 @@
 							{% endif %}
 								</div>
 							</div> <!-- .row -->
+							{% if user.is_authenticated %}
+								{% include 'movieApp/layout/content/commentForm.html' %}
+							{% endif %}
+							<hr>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="blog-comment">
+										<hr/>
+										<ul class="comments">
+											{% if not review_list%}
+												<li class="clearfix">
+													<p> No review yet!!Be the first one to add.</p>
+												</li>
+
+											{% else %}
+											{% for review in review_list %}
+												<li class="clearfix">
+
+													<img src="https://bootdey.com/img/Content/user_1.jpg" class="avatar" alt="">
+													<div class="post-comments">
+													<p class="meta">{{ review.name }} says : </p>
+													<p>
+				          								{{  review.post }}
+				      								</p>
+													</div>
+												</li>
+												{% endfor %}
+											{% endif %}
+										</ul>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div> <!-- .container -->
