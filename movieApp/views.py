@@ -121,10 +121,9 @@ class ReviewView(View):
         
 
 		movies = Movie.get_movies_by_genre(genre)
-		genres = Genre.objects.all()
 
 		page = request.GET.get('page', 1)
-		paginator = Paginator(movies, 4)
+		paginator = Paginator(movies, 3)
 		try:
 			movie_list = paginator.page(page)
 		except PageNotAnInteger:
