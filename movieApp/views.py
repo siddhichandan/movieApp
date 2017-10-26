@@ -30,6 +30,7 @@ def loginView(request):
 		password = form.cleaned_data.get("password")
 		user = authenticate(username=username, password=password)
 		login(request, user)
+		print(user.get_all_permissions())
 		if next:
 			return redirect(next)
 		return redirect("/")
@@ -92,7 +93,6 @@ class MainView(View):
 			new_movie['open_link'] = reverse('movieDetail',args=(movie.id,))
 			movies.append(new_movie)
 
-		print(movies)
 		template_values = {
 			'movie_list': movies,
 			'template_type': 'main'
@@ -156,7 +156,7 @@ class ReviewView(View):
 class MoviesView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 	login_url = '/login/'
-	permission_required = "add_movie"
+	permission_required = "movieApp.add_movie"
 
 	def get(self,request):
 		form = movieForm()
@@ -197,10 +197,8 @@ class MoviesView(LoginRequiredMixin, PermissionRequiredMixin, View):
 			movie.movie_description = cd.get('movie_description')
 			movie.save()
 
-			print(cd['geners'])
 			for gen in cd['geners']:
 				g = Genre.objects.get(name=gen)
-				print(g)
 				movie.genres.add(g)
 			
 			movie.save()
@@ -213,15 +211,13 @@ class MoviesView(LoginRequiredMixin, PermissionRequiredMixin, View):
 			print(e)
 			response = Utils.create_error_payload("Movie with movie name already exist")
 
-		print(response)
-
 		return HttpResponse(json.dumps(response))
 
 @method_decorator(csrf_exempt, name='dispatch')
 class EditMoviesView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 	login_url = '/login/'
-	permission_required = "change_movie"
+	permission_required = "movieApp.change_movie"
 
 	def get(self, request, movieId):
 		#form = movieForm()
@@ -232,8 +228,6 @@ class EditMoviesView(LoginRequiredMixin, PermissionRequiredMixin, View):
 			for genre in movie.genres.all():
 				genre_list.append(genre.name)
 
-			print("In editMoviesView")
-			print(genre_list)
 			data = {
 				'title':movie.title,
 				'movie_description': movie.movie_description,
@@ -303,7 +297,7 @@ class EditMoviesView(LoginRequiredMixin, PermissionRequiredMixin, View):
 @method_decorator(csrf_exempt, name='dispatch')
 class DeleteMovieView(LoginRequiredMixin, PermissionRequiredMixin, View):
 	login_url = '/login/'
-	permission_required = "delete_movie"
+	permission_required = "movieApp.delete_movie"
 
 	def post(self, request, movieId):
 		try:
@@ -329,7 +323,10 @@ class DeleteMovieView(LoginRequiredMixin, PermissionRequiredMixin, View):
 		return HttpResponse(json.dumps(response))
 
 @method_decorator(csrf_exempt, name='dispatch')
-class GenreView(View):
+class GenreView(LoginRequiredMixin, PermissionRequiredMixin, View):
+
+	login_url = '/login/'
+	permission_required = "movieApp.add_genre"
 
 	def get(self, request):
 		form = genreForm()
@@ -465,7 +462,6 @@ class MovieDetailView(View):
 				'delete_url': '/delete/movie/' + str(movie.id) + "/" if movie else ""
 			}
 
-		print("template_value")
 
 		template_values = Utils.template_vals_with_web_costants(
 			template_values,
