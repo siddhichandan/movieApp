@@ -37,6 +37,8 @@ class Movie(models.Model):
 
 	@classmethod
 	def get_movies_by_genre(self, genre):
+		print("In get movie by genre")
+		print(genre)
 		if not genre:
 			return None
 		genre = Genre.objects.get(name=genre)  #.movie_set.all()

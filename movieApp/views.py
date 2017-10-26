@@ -121,6 +121,10 @@ class ReviewView(View):
         
 
 		movies = Movie.get_movies_by_genre(genre)
+		genres = Genre.objects.all()
+		print(genres)
+		for g in genres:
+			print(g.name)
 		page = request.GET.get('page', 1)
 		paginator = Paginator(movies, 4)
 		try:
