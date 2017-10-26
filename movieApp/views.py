@@ -306,7 +306,7 @@ class GenreView(View):
 			os.path.dirname(__file__),
 			'templates/movieApp/form.html'
 		)
-		template_values = {"form": form, "title": title }
+		template_values = {"form": form, "title": "Add genre" }
 		template_values = Utils.template_vals_with_web_costants(
 			template_values,
 			'Movie99'
@@ -318,18 +318,24 @@ class GenreView(View):
 		form = genreForm(request.POST)
 
 		if not form.is_valid():
-			print(form.errors)
 			return HttpResponse(Utils.create_error_payload("Form not correct", form.errors))
 
+		cd = form.cleaned_data
+		title = cd.get('name')
+		description = cd.get('description')
 		response = {}
 		try:
-			form.save()
+
+			g = Genre()
+			g.title = title
+			g.description = description
+			g.save()
 			response = {
 				'message': 'Genre Successfully Added to the database'
 			}
 			response = Utils.create_success_payload(response)
 		except Exception:
-			response = Utils.create_error_payload()
+			response = Utils.create_error_payload("Something went wrong")
 
 		return HttpResponse(json.dumps(response))
 
@@ -420,7 +426,6 @@ class MovieDetailView(View):
 			response = Utils.create_success_payload(response)
 			return HttpResponse(json.dumps(response))
 
-		print("Here")
 		template_values = {
 				'template_type': 'movieView',
 				'movie': movie,

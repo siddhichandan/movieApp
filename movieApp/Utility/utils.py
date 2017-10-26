@@ -10,7 +10,6 @@ class Utils:
         responseObject = None
     ):
         print("In creare_error")
-        print(type(responseObject))
         payload = {}
         payload = {
             'status': Constants.API_FAIL,
