@@ -429,36 +429,42 @@ class MovieDetailView(View):
 
 		form = userReviewForm()
 		review_list = []
-		if movieName or movieId:
-			#try:
-			if movieId:
-				#movie = Movie.get_movie_by_id(movieId)
-				movie = Movie.objects.get(pk = movieId)
-			else:
-				movie = Movie.objects.get(title__icontains = movieName) 
+		try:
+			if movieName or movieId:
+				#try:
+				if movieId:
+					#movie = Movie.get_movie_by_id(movieId)
+					movie = Movie.objects.get(pk = movieId)
+				else:
+					movie = Movie.objects.get(title__icontains = movieName) 
 
-			genre_list = []
-			for genre in movie.genres.all():
-				genre_list.append(genre.name)
+				genre_list = []
+				for genre in movie.genres.all():
+					genre_list.append(genre.name)
 
-			review_list = UserReview.get_reviews_by_movie_id(movie)
+				review_list = UserReview.get_reviews_by_movie_id(movie)
 
-			genre_string = "/".join(genre_list) if genre_list else ""
-			#except Exception:
-			#	movie = None
+				genre_string = "/".join(genre_list) if genre_list else ""
+				#except Exception:
+				#	movie = None
 
-		if jsonResponse=='json':
-			if not movie:
+			if jsonResponse=='json':
+				if not movie:
+					return HttpResponse(json.dumps(Utils.create_error_payload(message="No Movie Found")))
+
+				response = {
+					'title': movie.title,
+					'director': movie.director,
+					'genre_string':genre_string,
+					'imdb_score': movie.imdb_score
+				}
+				response = Utils.create_success_payload(response)
+				return HttpResponse(json.dumps(response))
+		except Exception:
+			#return HttpResponse(json.dumps(Utils.create_error_payload(message="No Movie Found")))
+			movie = None
+			if jsonResponse=='json':
 				return HttpResponse(json.dumps(Utils.create_error_payload(message="No Movie Found")))
-
-			response = {
-				'title': movie.title,
-				'director': movie.director,
-				'genre_string':genre_string,
-				'imdb_score': movie.imdb_score
-			}
-			response = Utils.create_success_payload(response)
-			return HttpResponse(json.dumps(response))
 
 		template_values = {
 				'template_type': 'movieView',
